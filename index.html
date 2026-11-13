@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Folha de Pagamento</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .col {
+            flex: 1;
+            padding: 0 10px;
+            min-width: 250px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #219653;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+        
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .contracheque {
+            background: white;
+            padding: 30px;
+            border: 1px solid #ddd;
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .contracheque-header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+        }
+        
+        .empresa-nome {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .document-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .empresa-endereco {
+            margin-bottom: 5px;
+        }
+        
+        .periodo {
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .funcionario-info {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        
+        .total-row {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+        
+        .decimo-terceiro-note {
+            font-style: italic;
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .assinatura {
+            margin-top: 50px;
+            text-align: center;
+            border-top: 1px solid #333;
+            padding-top: 15px;
+        }
+        
+        .assinatura-line {
+            width: 60%;
+            margin: 0 auto;
+            border-top: 1px solid #333;
+            padding-top: 40px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+            font-size: 12px;
+        }
+        
+        .alert {
+            padding: 12px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+        
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+            
+            .col {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+            
+            .funcionario-info {
+                flex-direction: column;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Folha de Pagamento</h1>
+            <p class="subtitle">Cálculos automáticos de INSS, FGTS, IRRF, 13º e geração de contracheque</p>
+        </header>
+        
+        <div class="alert" id="alert-message"></div>
+        
+        <div class="card">
+            <h2 class="card-title">Dados da Empresa</h2>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="empresa-nome">Nome da Empresa *</label>
+                        <input type="text" id="empresa-nome" placeholder="Digite o nome completo da empresa">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="empresa-cnpj">CNPJ *</label>
+                        <input type="text" id="empresa-cnpj" placeholder="00.000.000/0000-00" maxlength="18">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="empresa-endereco">Endereço *</label>
+                        <input type="text" id="empresa-endereco" placeholder="Digite o endereço completo">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">Dados do Funcionário</h2>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="funcionario-codigo">Código do Funcionário</label>
+                        <input type="text" id="funcionario-codigo" placeholder="Código interno (opcional)">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="funcionario-nome">Nome do Funcionário *</label>
+                        <input type="text" id="funcionario-nome" placeholder="Nome completo do funcionário">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="funcionario-cpf">CPF *</label>
+                        <input type="text" id="funcionario-cpf" placeholder="000.000.000-00" maxlength="14">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="funcionario-admissao">Data de Admissão *</label>
+                        <input type="date" id="funcionario-admissao">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="funcionario-cargo">Cargo *</label>
+                        <input type="text" id="funcionario-cargo" placeholder="Cargo do funcionário">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="funcionario-setor">Setor/Departamento</label>
+                        <input type="text" id="funcionario-setor" placeholder="Setor ou departamento (opcional)">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">Informações de Pagamento</h2>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="mes-referencia">Mês de Referência *</label>
+                        <input type="month" id="mes-referencia" value="2026-11" required>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="salario-base">Salário Base (R$) *</label>
+                        <input type="number" id="salario-base" placeholder="0,00" step="0.01" min="0">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="decimo-terceiro" name="decimo-terceiro">
+                        <label for="decimo-terceiro">Calcular como 13º Salário</label>
+                    </div>
+                    <div class="decimo-terceiro-note" id="decimo-terceiro-note" style="display: none;">
+                        * Para cálculo do 13º salário, são considerados INSS e IRRF, mas não são considerados FGTS e outros benefícios/descontos.
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="parcela-decimo">Parcela do 13º</label>
+                        <select id="parcela-decimo">
+                            <option value="1">1ª Parcela (adiantamento - 50%)</option>
+                            <option value="2">2ª Parcela (complementar)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="horas-extras">Horas Extras</label>
+                        <input type="number" id="horas-extras" placeholder="0" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="valor-hora-extra">Valor da Hora Extra (R$)</label>
+                        <input type="number" id="valor-hora-extra" placeholder="0,00" step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="vale-transporte">Utiliza Vale Transporte?</label>
+                        <select id="vale-transporte">
+                            <option value="nao">Não</option>
+                            <option value="sim">Sim</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="gasto-transporte">Gasto com Transporte (R$)</label>
+                        <input type="number" id="gasto-transporte" placeholder="0,00" step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="dependentes">Número de Dependentes</label>
+                        <input type="number" id="dependentes" placeholder="0" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="outros-proventos">Outros Proventos (R$)</label>
+                        <input type="number" id="outros-proventos" placeholder="0,00" step="0.01" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="outros-descontos">Outros Descontos (R$)</label>
+                        <input type="number" id="outros-descontos" placeholder="0,00" step="0.01" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button id="btn-calcular" class="btn">Calcular Folha</button>
+                <button id="btn-limpar" class="btn btn-danger">Limpar Campos</button>
+            </div>
+        </div>
+        
+        <div id="results" class="results">
+            <div class="card">
+                <h2 class="card-title">Contracheque - Prévia</h2>
+                <div class="contracheque" id="contracheque">
+                    <div class="contracheque-header">
+                        <div class="empresa-nome" id="pdf-empresa-nome">Nome da Empresa</div>
+                        <div id="pdf-empresa-cnpj">CNPJ: </div>
+                        <div class="document-title" id="pdf-document-title">Demonstrativo de Pagamento de Salário</div>
+                        <div class="empresa-endereco" id="pdf-empresa-endereco">Endereço da Empresa</div>
+                    </div>
+                    
+                    <div class="periodo" id="pdf-periodo">Período de Pagamento</div>
+                    
+                    <div class="funcionario-info">
+                        <div class="info-item">
+                            <strong>CÓDIGO:</strong> <span id="pdf-funcionario-codigo">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>NOME:</strong> <span id="pdf-funcionario-nome">Nome do Funcionário</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>CPF:</strong> <span id="pdf-funcionario-cpf">000.000.000-00</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>ADMISSÃO:</strong> <span id="pdf-funcionario-admissao">00/00/0000</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>CARGO:</strong> <span id="pdf-funcionario-cargo">Cargo</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>SETOR:</strong> <span id="pdf-funcionario-setor">-</span>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cód.</th>
+                                <th>Descrição</th>
+                                <th>Referência</th>
+                                <th>Vencimentos (R$)</th>
+                                <th>Descontos (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="row-salario-base" style="display: none;">
+                                <td>001</td>
+                                <td id="td-salario-desc">Salário Base</td>
+                                <td></td>
+                                <td id="pdf-salario-base">0,00</td>
+                                <td></td>
+                            </tr>
+                            <tr id="row-decimo-terceiro" style="display: none;">
+                                <td>005</td>
+                                <td id="td-decimo-desc">13º Salário</td>
+                                <td id="pdf-decimo-ref"></td>
+                                <td id="pdf-decimo-terceiro">0,00</td>
+                                <td></td>
+                            </tr>
+                            <tr id="row-horas-extras" style="display: none;">
+                                <td>002</td>
+                                <td>Horas Extras</td>
+                                <td id="pdf-he-ref"></td>
+                                <td id="pdf-horas-extras">0,00</td>
+                                <td></td>
+                            </tr>
+                            <tr id="row-outros-proventos" style="display: none;">
+                                <td>003</td>
+                                <td>Outros Proventos</td>
+                                <td></td>
+                                <td id="pdf-outros-proventos">0,00</td>
+                                <td></td>
+                            </tr>
+                            <tr id="row-vt-beneficio" style="display: none;">
+                                <td>004</td>
+                                <td>Vale Transporte (Benefício)</td>
+                                <td id="pdf-vt-ref"></td>
+                                <td id="pdf-vale-transporte-beneficio">0,00</td>
+                                <td></td>
+                            </tr>
+                            <tr id="row-inss" style="display: none;">
+                                <td>901</td>
+                                <td>INSS</td>
+                                <td></td>
+                                <td></td>
+                                <td id="pdf-inss">0,00</td>
+                            </tr>
+                            <tr id="row-irrf" style="display: none;">
+                                <td>902</td>
+                                <td>IRRF</td>
+                                <td></td>
+                                <td></td>
+                                <td id="pdf-irrf">0,00</td>
+                            </tr>
+                            <tr id="row-vt-desconto" style="display: none;">
+                                <td>903</td>
+                                <td>Vale Transporte (Desconto)</td>
+                                <td></td>
+                                <td></td>
+                                <td id="pdf-vale-transporte-desconto">0,00</td>
+                            </tr>
+                            <tr id="row-outros-descontos" style="display: none;">
+                                <td>904</td>
+                                <td>Outros Descontos</td>
+                                <td></td>
+                                <td></td>
+                                <td id="pdf-outros-descontos">0,00</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3">TOTAL</td>
+                                <td id="pdf-total-proventos">0,00</td>
+                                <td id="pdf-total-descontos">0,00</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3">VALOR LÍQUIDO</td>
+                                <td colspan="2" id="pdf-salario-liquido" style="text-align: center;">0,00</td>
+                            </tr>
+                            <tr id="row-fgts" style="display: none;">
+                                <td colspan="3">FGTS DO MÊS</td>
+                                <td colspan="2" id="pdf-fgts" style="text-align: center;">0,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="assinatura">
+                        <div class="assinatura-line"></div>
+                        <div>ASSINATURA DO FUNCIONÁRIO</div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Documento gerado automaticamente pelo Sistema de Folha de Pagamento</p>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button id="btn-gerar-pdf" class="btn btn-success">Gerar Contracheque em PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnCalcular = document.getElementById('btn-calcular');
+            const btnLimpar = document.getElementById('btn-limpar');
+            const btnGerarPDF = document.getElementById('btn-gerar-pdf');
+            const resultsSection = document.getElementById('results');
+            const alertMessage = document.getElementById('alert-message');
+            const cnpjInput = document.getElementById('empresa-cnpj');
+            const cpfInput = document.getElementById('funcionario-cpf');
+            const decimoTerceiroCheck = document.getElementById('decimo-terceiro');
+            const parcelaDecimoSelect = document.getElementById('parcela-decimo');
+            const decimoTerceiroNote = document.getElementById('decimo-terceiro-note');
+            
+            const rowSalarioBase = document.getElementById('row-salario-base');
+            const rowDecimoTerceiro = document.getElementById('row-decimo-terceiro');
+            const rowHorasExtras = document.getElementById('row-horas-extras');
+            const rowOutrosProventos = document.getElementById('row-outros-proventos');
+            const rowVtBeneficio = document.getElementById('row-vt-beneficio');
+            const rowVtDesconto = document.getElementById('row-vt-desconto');
+            const rowInss = document.getElementById('row-inss');
+            const rowIrrf = document.getElementById('row-irrf');
+            const rowOutrosDescontos = document.getElementById('row-outros-descontos');
+            const rowFgts = document.getElementById('row-fgts');
+            
+            decimoTerceiroCheck.addEventListener('change', function() {
+                if (this.checked) {
+                    decimoTerceiroNote.style.display = 'block';
+                } else {
+                    decimoTerceiroNote.style.display = 'none';
+                }
+            });
+            
+            function formatarCNPJ(cnpj) {
+                cnpj = cnpj.replace(/\D/g, '');
+                if (cnpj.length === 14) {
+                    return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+                }
+                return cnpj;
+            }
+            
+            function formatarCPF(cpf) {
+                cpf = cpf.replace(/\D/g, '');
+                if (cpf.length === 11) {
+                    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+                }
+                return cpf;
+            }
+            
+            cnpjInput.addEventListener('blur', function() {
+                this.value = formatarCNPJ(this.value);
+            });
+            
+            cpfInput.addEventListener('blur', function() {
+                this.value = formatarCPF(this.value);
+            });
+            
+            function permitirApenasNumeros(e) {
+                const tecla = e.key;
+                const isNumber = /[0-9]/.test(tecla);
+                const isControl = [
+                    'Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 
+                    'Home', 'End', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'
+                ].includes(tecla);
+                
+                if (!isNumber && !isControl) {
+                    e.preventDefault();
+                }
+            }
+            
+            cnpjInput.addEventListener('keydown', permitirApenasNumeros);
+            cpfInput.addEventListener('keydown', permitirApenasNumeros);
+            
+            function validarCNPJ(cnpj) {
+                cnpj = cnpj.replace(/\D/g, '');
+                return cnpj.length === 14;
+            }
+            
+            function validarCPF(cpf) {
+                cpf = cpf.replace(/\D/g, '');
+                return cpf.length === 11;
+            }
+            
+            function showAlert(message, isError = true) {
+                alertMessage.textContent = message;
+                alertMessage.style.display = 'block';
+                alertMessage.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+                alertMessage.style.color = isError ? '#721c24' : '#155724';
+                
+                setTimeout(() => {
+                    alertMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            function validarCampos() {
+                const camposObrigatorios = [
+                    { id: 'empresa-nome', nome: 'Nome da Empresa' },
+                    { id: 'empresa-cnpj', nome: 'CNPJ da Empresa' },
+                    { id: 'empresa-endereco', nome: 'Endereço da Empresa' },
+                    { id: 'funcionario-nome', nome: 'Nome do Funcionário' },
+                    { id: 'funcionario-cpf', nome: 'CPF do Funcionário' },
+                    { id: 'funcionario-admissao', nome: 'Data de Admissão' },
+                    { id: 'funcionario-cargo', nome: 'Cargo do Funcionário' },
+                    { id: 'mes-referencia', nome: 'Mês de Referência' },
+                    { id: 'salario-base', nome: 'Salário Base' }
+                ];
+                
+                for (const campo of camposObrigatorios) {
+                    const elemento = document.getElementById(campo.id);
+                    if (!elemento.value.trim()) {
+                        showAlert(`Por favor, preencha o campo: ${campo.nome}`);
+                        elemento.focus();
+                        return false;
+                    }
+                }
+                
+                const cnpj = document.getElementById('empresa-cnpj').value;
+                if (!validarCNPJ(cnpj)) {
+                    showAlert('CNPJ inválido. Digite 14 números.');
+                    cnpjInput.focus();
+                    return false;
+                }
+                
+                const cpf = document.getElementById('funcionario-cpf').value;
+                if (!validarCPF(cpf)) {
+                    showAlert('CPF inválido. Digite 11 números.');
+                    cpfInput.focus();
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            function formatarMoeda(valor) {
+                return valor.toLocaleString('pt-BR', { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                });
+            }
+            
+            function formatarData(data) {
+                if (!data) return '';
+                const dataObj = new Date(data);
+                return dataObj.toLocaleDateString('pt-BR');
+            }
+            
+            // Tabela INSS atualizada
+            function calcularINSS(salarioBase) {
+                let inss = 0;
+                
+                if (salarioBase <= 1518.00) {
+                    inss = salarioBase * 0.075;
+                } else if (salarioBase <= 2793.88) {
+                    inss = (1518.00 * 0.075) + ((salarioBase - 1518.00) * 0.09);
+                } else if (salarioBase <= 4190.83) {
+                    inss = (1518.00 * 0.075) + ((2793.88 - 1518.00) * 0.09) + ((salarioBase - 2793.88) * 0.12);
+                } else if (salarioBase <= 8157.41) {
+                    inss = (1518.00 * 0.075) + ((2793.88 - 1518.00) * 0.09) + ((4190.83 - 2793.88) * 0.12) + ((salarioBase - 4190.83) * 0.14);
+                } else {
+                    inss = 951.63; // Teto previdenciário proporcional
+                }
+                
+                return Math.round(inss * 100) / 100;
+            }
+            
+            // Tabela IRRF atualizada
+            function calcularIRRF(salarioBase, inss, dependentes, valorHorasExtras, outrosProventos, valeTransporteBeneficio, isDecimoTerceiro = false) {
+                const deducaoDependente = 189.59;
+                
+                let baseCalculo;
+                if (isDecimoTerceiro) {
+                    baseCalculo = salarioBase - inss - (dependentes * deducaoDependente);
+                } else {
+                    baseCalculo = salarioBase + valorHorasExtras + outrosProventos + valeTransporteBeneficio - inss - (dependentes * deducaoDependente);
+                }
+                
+                if (baseCalculo <= 2259.20) {
+                    return 0;
+                } else if (baseCalculo <= 2826.65) {
+                    return (baseCalculo * 0.075) - 169.44;
+                } else if (baseCalculo <= 3751.05) {
+                    return (baseCalculo * 0.15) - 381.44;
+                } else if (baseCalculo <= 4664.68) {
+                    return (baseCalculo * 0.225) - 662.77;
+                } else {
+                    return (baseCalculo * 0.275) - 896.00;
+                }
+            }
+            
+            function calcularFGTS(totalProventos) {
+                return totalProventos * 0.08;
+            }
+            
+            function calcularValeTransporte(salarioBase, gastoTransporte, utilizaVT) {
+                if (utilizaVT === 'sim' && gastoTransporte > 0) {
+                    const descontoMaximo = salarioBase * 0.06;
+                    const descontoAplicado = Math.min(descontoMaximo, gastoTransporte);
+                    
+                    return {
+                        beneficio: gastoTransporte,
+                        desconto: descontoAplicado,
+                        mostraBeneficio: gastoTransporte > descontoMaximo
+                    };
+                }
+                return {
+                    beneficio: 0,
+                    desconto: 0,
+                    mostraBeneficio: false
+                };
+            }
+            
+            function calcularFolha() {
+                if (!validarCampos()) {
+                    return;
+                }
+                
+                const salarioBase = parseFloat(document.getElementById('salario-base').value) || 0;
+                const horasExtras = parseInt(document.getElementById('horas-extras').value) || 0;
+                const valorHoraExtra = parseFloat(document.getElementById('valor-hora-extra').value) || 0;
+                const utilizaVT = document.getElementById('vale-transporte').value;
+                const gastoTransporte = parseFloat(document.getElementById('gasto-transporte').value) || 0;
+                const dependentes = parseInt(document.getElementById('dependentes').value) || 0;
+                const outrosProventos = parseFloat(document.getElementById('outros-proventos').value) || 0;
+                const outrosDescontos = parseFloat(document.getElementById('outros-descontos').value) || 0;
+                const isDecimoTerceiro = document.getElementById('decimo-terceiro').checked;
+                const parcelaDecimo = parseInt(document.getElementById('parcela-decimo').value);
+                
+                const mesReferencia = document.getElementById('mes-referencia').value;
+                
+                if (!mesReferencia) {
+                    showAlert('Por favor, selecione o mês de referência');
+                    document.getElementById('mes-referencia').focus();
+                    return;
+                }
+                
+                const valorHorasExtras = horasExtras * valorHoraExtra;
+                const vtCalculado = calcularValeTransporte(salarioBase, gastoTransporte, isDecimoTerceiro ? 'nao' : utilizaVT);
+                const valeTransporteBeneficio = vtCalculado.beneficio;
+                const valeTransporteDesconto = vtCalculado.desconto;
+                
+                let decimoTerceiroValor = 0;
+                let inss = 0;
+                let irrf = 0;
+                let totalProventos = 0;
+                let totalDescontos = 0;
+                let salarioLiquido = 0;
+                let fgts = 0;
+                
+                if (isDecimoTerceiro) {
+                    decimoTerceiroValor = salarioBase;
+                    inss = calcularINSS(salarioBase);
+                    irrf = Math.max(0, calcularIRRF(salarioBase, inss, dependentes, 0, 0, 0, true));
+                    
+                    if (parcelaDecimo === 1) {
+                        decimoTerceiroValor = salarioBase * 0.5;
+                        inss = 0;
+                        irrf = 0;
+                    }
+                    
+                    totalProventos = decimoTerceiroValor;
+                    totalDescontos = inss + irrf;
+                    salarioLiquido = totalProventos - totalDescontos;
+                } else {
+                    totalProventos = salarioBase + valorHorasExtras + outrosProventos + valeTransporteBeneficio;
+                    inss = calcularINSS(salarioBase);
+                    irrf = Math.max(0, calcularIRRF(salarioBase, inss, dependentes, valorHorasExtras, outrosProventos, valeTransporteBeneficio));
+                    totalDescontos = inss + irrf + valeTransporteDesconto + outrosDescontos;
+                    salarioLiquido = totalProventos - totalDescontos;
+                    fgts = calcularFGTS(totalProventos);
+                }
+                
+                document.getElementById('pdf-empresa-nome').textContent = document.getElementById('empresa-nome').value;
+                document.getElementById('pdf-empresa-cnpj').textContent = 'CNPJ: ' + document.getElementById('empresa-cnpj').value;
+                document.getElementById('pdf-empresa-endereco').textContent = document.getElementById('empresa-endereco').value;
+                
+                const [ano, mes] = mesReferencia.split('-').map(Number);
+                const mesIndex = mes - 1;
+                
+                const primeiroDia = new Date(ano, mesIndex, 1);
+                const ultimoDia = new Date(ano, mesIndex + 1, 0);
+                const nomeMes = primeiroDia.toLocaleDateString('pt-BR', { month: 'long' });
+                
+                if (isDecimoTerceiro) {
+                    const parcelaText = parcelaDecimo === 1 ? '1ª Parcela (Adiantamento)' : '2ª Parcela';
+                    document.getElementById('pdf-document-title').textContent = `Demonstrativo de Pagamento - 13º Salário (${parcelaText})`;
+                    document.getElementById('pdf-periodo').textContent = 
+                        `13º Salário - ${nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)}/${ano}`;
+                } else {
+                    document.getElementById('pdf-document-title').textContent = 'Demonstrativo de Pagamento de Salário';
+                    document.getElementById('pdf-periodo').textContent = 
+                        `Folha de Pagamento - ${nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)}/${ano}` + 
+                        ` (Período: ${formatarData(primeiroDia)} a ${formatarData(ultimoDia)})`;
+                }
+                
+                document.getElementById('pdf-funcionario-codigo').textContent = document.getElementById('funcionario-codigo').value || '-';
+                document.getElementById('pdf-funcionario-nome').textContent = document.getElementById('funcionario-nome').value;
+                document.getElementById('pdf-funcionario-cpf').textContent = document.getElementById('funcionario-cpf').value;
+                document.getElementById('pdf-funcionario-admissao').textContent = formatarData(document.getElementById('funcionario-admissao').value);
+                document.getElementById('pdf-funcionario-cargo').textContent = document.getElementById('funcionario-cargo').value;
+                document.getElementById('pdf-funcionario-setor').textContent = document.getElementById('funcionario-setor').value || '-';
+                
+                if (isDecimoTerceiro) {
+                    rowSalarioBase.style.display = 'none';
+                    rowDecimoTerceiro.style.display = '';
+                    rowHorasExtras.style.display = 'none';
+                    rowOutrosProventos.style.display = 'none';
+                    rowVtBeneficio.style.display = 'none';
+                    rowVtDesconto.style.display = 'none';
+                    rowFgts.style.display = 'none';
+                    
+                    const parcelaText = parcelaDecimo === 1 ? '1ª Parcela (50%)' : '2ª Parcela';
+                    document.getElementById('td-decimo-desc').textContent = `13º Salário (${parcelaText})`;
+                    document.getElementById('pdf-decimo-terceiro').textContent = formatarMoeda(decimoTerceiroValor);
+                    document.getElementById('pdf-decimo-ref').textContent = formatarMoeda(salarioBase);
+                } else {
+                    rowSalarioBase.style.display = '';
+                    rowDecimoTerceiro.style.display = 'none';
+                    rowFgts.style.display = '';
+                    
+                    document.getElementById('pdf-salario-base').textContent = formatarMoeda(salarioBase);
+                    document.getElementById('td-salario-desc').textContent = 'Salário Base';
+                    
+                    if (horasExtras > 0 && valorHoraExtra > 0) {
+                        rowHorasExtras.style.display = '';
+                        document.getElementById('pdf-horas-extras').textContent = formatarMoeda(valorHorasExtras);
+                        document.getElementById('pdf-he-ref').textContent = horasExtras > 0 ? `${horasExtras} h` : '';
+                    } else {
+                        rowHorasExtras.style.display = 'none';
+                    }
+                    
+                    if (outrosProventos > 0) {
+                        rowOutrosProventos.style.display = '';
+                        document.getElementById('pdf-outros-proventos').textContent = formatarMoeda(outrosProventos);
+                    } else {
+                        rowOutrosProventos.style.display = 'none';
+                    }
+                    
+                    if (utilizaVT === 'sim' && gastoTransporte > 0) {
+                        rowVtBeneficio.style.display = '';
+                        rowVtDesconto.style.display = '';
+                        document.getElementById('pdf-vale-transporte-beneficio').textContent = formatarMoeda(valeTransporteBeneficio);
+                        document.getElementById('pdf-vale-transporte-desconto').textContent = formatarMoeda(valeTransporteDesconto);
+                        document.getElementById('pdf-vt-ref').textContent = formatarMoeda(gastoTransporte);
+                    } else {
+                        rowVtBeneficio.style.display = 'none';
+                        rowVtDesconto.style.display = 'none';
+                    }
+                }
+                
+                if (inss > 0) {
+                    rowInss.style.display = '';
+                    document.getElementById('pdf-inss').textContent = formatarMoeda(inss);
+                } else {
+                    rowInss.style.display = 'none';
+                }
+                
+                if (irrf > 0) {
+                    rowIrrf.style.display = '';
+                    document.getElementById('pdf-irrf').textContent = formatarMoeda(irrf);
+                } else {
+                    rowIrrf.style.display = 'none';
+                }
+                
+                if (outrosDescontos > 0) {
+                    rowOutrosDescontos.style.display = '';
+                    document.getElementById('pdf-outros-descontos').textContent = formatarMoeda(outrosDescontos);
+                } else {
+                    rowOutrosDescontos.style.display = 'none';
+                }
+                
+                document.getElementById('pdf-total-proventos').textContent = formatarMoeda(totalProventos);
+                document.getElementById('pdf-total-descontos').textContent = formatarMoeda(totalDescontos);
+                document.getElementById('pdf-salario-liquido').textContent = formatarMoeda(salarioLiquido);
+                
+                if (!isDecimoTerceiro) {
+                    document.getElementById('pdf-fgts').textContent = formatarMoeda(fgts);
+                }
+                
+                resultsSection.style.display = 'block';
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+                
+                showAlert('Cálculo realizado com sucesso!', false);
+            }
+            
+            function limparCampos() {
+                document.querySelectorAll('input').forEach(input => {
+                    if (input.type !== 'button' && input.type !== 'checkbox' && input.id !== 'mes-referencia') {
+                        input.value = '';
+                    }
+                });
+                
+                document.getElementById('mes-referencia').value = '2026-11';
+                document.getElementById('decimo-terceiro').checked = false;
+                document.getElementById('parcela-decimo').value = '1';
+                document.getElementById('vale-transporte').value = 'nao';
+                resultsSection.style.display = 'none';
+                decimoTerceiroNote.style.display = 'none';
+                
+                const linhas = [
+                    rowSalarioBase, rowDecimoTerceiro, rowHorasExtras, rowOutrosProventos,
+                    rowVtBeneficio, rowVtDesconto, rowInss, rowIrrf, rowOutrosDescontos, rowFgts
+                ];
+                linhas.forEach(linha => {
+                    if (linha) linha.style.display = 'none';
+                });
+                
+                showAlert('Campos limpos com sucesso!', false);
+            }
+            
+            function gerarPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(16);
+                doc.text(document.getElementById('pdf-empresa-nome').textContent, 105, 15, { align: 'center' });
+                
+                doc.setFontSize(10);
+                doc.text(document.getElementById('pdf-empresa-cnpj').textContent, 105, 21, { align: 'center' });
+                doc.text(document.getElementById('pdf-document-title').textContent, 105, 27, { align: 'center' });
+                doc.text(document.getElementById('pdf-empresa-endereco').textContent, 105, 33, { align: 'center' });
+                
+                doc.text(document.getElementById('pdf-periodo').textContent, 105, 41, { align: 'center' });
+                
+                let yPos = 55;
+                doc.setFontSize(9);
+                
+                doc.text('CÓDIGO: ' + document.getElementById('pdf-funcionario-codigo').textContent, 20, yPos);
+                doc.text('NOME: ' + document.getElementById('pdf-funcionario-nome').textContent, 80, yPos);
+                yPos += 6;
+                
+                doc.text('CPF: ' + document.getElementById('pdf-funcionario-cpf').textContent, 20, yPos);
+                doc.text('ADMISSÃO: ' + document.getElementById('pdf-funcionario-admissao').textContent, 80, yPos);
+                yPos += 6;
+                
+                doc.text('CARGO: ' + document.getElementById('pdf-funcionario-cargo').textContent, 20, yPos);
+                doc.text('SETOR: ' + document.getElementById('pdf-funcionario-setor').textContent, 80, yPos);
+                
+                yPos += 12;
+                doc.setFontSize(8);
+                
+                doc.text('Cód.', 20, yPos);
+                doc.text('Descrição', 32, yPos);
+                doc.text('Ref.', 85, yPos);
+                doc.text('Vencimentos', 100, yPos);
+                doc.text('Descontos', 150, yPos);
+                
+                yPos += 4;
+                doc.line(20, yPos, 190, yPos);
+                yPos += 6;
+                
+                const linhas = [];
+                
+                if (rowSalarioBase.style.display !== 'none') {
+                    linhas.push({ 
+                        cod: '001', 
+                        desc: document.getElementById('td-salario-desc').textContent, 
+                        ref: '', 
+                        ven: document.getElementById('pdf-salario-base').textContent, 
+                        des: '' 
+                    });
+                }
+                
+                if (rowDecimoTerceiro.style.display !== 'none') {
+                    linhas.push({ 
+                        cod: '005', 
+                        desc: document.getElementById('td-decimo-desc').textContent, 
+                        ref: document.getElementById('pdf-decimo-ref').textContent, 
+                        ven: document.getElementById('pdf-decimo-terceiro').textContent, 
+                        des: '' 
+                    });
+                }
+                
+                if (rowHorasExtras.style.display !== 'none') {
+                    linhas.push({ 
+                        cod: '002', 
+                        desc: 'Horas Extras', 
+                        ref: document.getElementById('pdf-he-ref').textContent, 
+                        ven: document.getElementById('pdf-horas-extras').textContent, 
+                        des: '' 
+                    });
+                }
+                
+                if (rowOutrosProventos.style.display !== 'none') {
+                    linhas.push({ 
+                        cod: '003', 
+                        desc: 'Outros Proventos', 
+                        ref: '', 
+                        ven: document.getElementById('pdf-outros-proventos').textContent, 
+                        des: '' 
+                    });
+                }
+                
+                if (rowVtBeneficio.style.display !== 'none') {
+                    linhas.push({ 
+                        cod: '004', 
+                        desc: 'Vale Transporte (Benefício)', 
+                        ref: document.getElementById('pdf-vt-ref').textContent, 
+                        ven: document.getElementById('pdf-vale-transporte-beneficio').textContent, 
+                        des: '' 
+                    });
+                }
+                
+                if (rowInss.style.display !== 'none') {
+                    linhas.push({ 
+                        cod: '901', 
+                        desc: 'INSS', 
+                        ref: '', 
+                        ven: '', 
+                        des: document.getElementById('pdf-inss').textContent 
+                    });
+                }
+                
+                if (rowIrrf.style.display !== 'none') {
+                    linhas.push({ 
+                        cod: '902', 
+                        desc: 'IRRF', 
+                        ref: '', 
+                        ven: '', 
+                        des: document.getElementById('pdf-irrf').textContent 
+                    });
+                }
+                
+                if (rowVtDesconto.style.display !== 'none') {
+                    linhas.push({ 
+                        cod: '903', 
+                        desc: 'Vale Transporte (Desconto)', 
+                        ref: '', 
+                        ven: '', 
+                        des: document.getElementById('pdf-vale-transporte-desconto').textContent 
+                    });
+                }
+                
+                if (rowOutrosDescontos.style.display !== 'none') {
+                    linhas.push({ 
+                        cod: '904', 
+                        desc: 'Outros Descontos', 
+                        ref: '', 
+                        ven: '', 
+                        des: document.getElementById('pdf-outros-descontos').textContent 
+                    });
+                }
+                
+                linhas.forEach(linha => {
+                    doc.text(linha.cod, 20, yPos);
+                    doc.text(linha.desc, 32, yPos);
+                    doc.text(linha.ref, 85, yPos);
+                    doc.text(linha.ven, 100, yPos);
+                    doc.text(linha.des, 150, yPos);
+                    yPos += 5;
+                });
+                
+                yPos += 3;
+                doc.line(20, yPos, 190, yPos);
+                yPos += 5;
+                
+                doc.setFont(undefined, 'bold');
+                doc.text('TOTAL', 20, yPos);
+                doc.text(document.getElementById('pdf-total-proventos').textContent, 100, yPos);
+                doc.text(document.getElementById('pdf-total-descontos').textContent, 150, yPos);
+                
+                yPos += 5;
+                doc.text('VALOR LÍQUIDO', 20, yPos);
+                doc.text(document.getElementById('pdf-salario-liquido').textContent, 150, yPos);
+                
+                if (rowFgts.style.display !== 'none') {
+                    yPos += 5;
+                    doc.setFont(undefined, 'normal');
+                    doc.text('FGTS DO MÊS', 20, yPos);
+                    doc.text(document.getElementById('pdf-fgts').textContent, 150, yPos);
+                }
+                
+                yPos += 15;
+                doc.line(60, yPos, 150, yPos);
+                doc.text('ASSINATURA DO FUNCIONÁRIO', 105, yPos + 5, { align: 'center' });
+                
+                doc.setFontSize(7);
+                doc.text('Documento gerado automaticamente pelo Sistema de Folha de Pagamento', 105, 280, { align: 'center' });
+                
+                const nomeFuncionario = document.getElementById('funcionario-nome').value || 'funcionario';
+                const mesReferencia = document.getElementById('mes-referencia').value;
+                const [ano, mes] = mesReferencia.split('-');
+                const isDecimoTerceiro = document.getElementById('decimo-terceiro').checked;
+                const parcelaDecimo = document.getElementById('parcela-decimo').value;
+                
+                let nomeArquivo = `contracheque_${nomeFuncionario.replace(/\s+/g, '_')}_${mes}_${ano}`;
+                if (isDecimoTerceiro) {
+                    nomeArquivo = `13salario_${parcelaDecimo}parcela_${nomeFuncionario.replace(/\s+/g, '_')}_${mes}_${ano}`;
+                }
+                
+                doc.save(`${nomeArquivo}.pdf`);
+                
+                showAlert('PDF gerado com sucesso!', false);
+            }
+            
+            btnCalcular.addEventListener('click', calcularFolha);
+            btnLimpar.addEventListener('click', limparCampos);
+            btnGerarPDF.addEventListener('click', gerarPDF);
+        });
+    </script>
+</body>
+</html>
